@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { deletePost, getPosts, putPost } from '../api/Postapi';
 
@@ -12,11 +11,13 @@ const Posts = () => {
     });
     const [searchvalue, setSearchValue] = useState("");
     const [searchResults, setSearchResults] = useState([]);
+    
     const [filterUserId, setFilterUserId] = useState("");
     const [uniqueUserIds, setUniqueUserIds] = useState([]);
+    const [filteredData, setFilteredData] = useState([])
 
 
-
+    useEffect(() => {
     const getData = async () => {
         try {
             const res = await getPosts();
@@ -26,8 +27,20 @@ const Posts = () => {
         } catch (err) {
             console.error("Error fetching posts:", err);
         }
-
     }
+        getData();
+    }, []);
+
+    useEffect(() => {
+        if(data)
+        {
+            const userIds = data.map(post => post.userId);
+            const uniqueIds = [...new Set(userIds)];
+            console.log(uniqueIds);
+            setUniqueUserIds(uniqueIds);
+        }
+    }, [data])
+    
 
     const handleChange = (e) => {
         setupdatedPost({ ...updatedPost, [e.target.name]: e.target.value });
@@ -76,12 +89,15 @@ const Posts = () => {
     }
 
 
-
-
     useEffect(() => {
-        getData()
-    }, [])
-
+        if(data)
+        {
+            const arr = data.filter((post)=>post.userId==filterUserId)
+            console.log('arr data',arr);
+            setFilteredData(arr)    
+        }
+    }, [filterUserId])
+    
 
 
     return (
@@ -105,7 +121,7 @@ const Posts = () => {
 
             <select
             value={filterUserId}
-            onChange={(e)=>setFilterUserId(e,target.value)}
+            onChange={(e)=>setFilterUserId(e.target.value)}
             style={{
                 padding: "5px",
                 height: "30px",
@@ -115,14 +131,14 @@ const Posts = () => {
             }}
             >
                 <option value="">Filter By UserId</option>
-                {uniqueUserIds.map((userId)=>(
+                {uniqueUserIds?.map((userId)=>(
                     <option key={userId} value={userId}>
                        user : {userId}
                     </option>
                 ))}
             </select>
         </div>
-            {(searchvalue ? searchResults: data).map((post) => (
+            {( searchvalue ? searchResults: filteredData.length>0? filteredData:data).map((post) => (
                 <div key={post.id}>
 
                     {editingPost === post.id ? (
