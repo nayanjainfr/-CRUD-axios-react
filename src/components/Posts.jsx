@@ -10,12 +10,18 @@ const Posts = () => {
         title: "",
         body: ""
     });
+    const [searchvalue, setSearchValue] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+
+
+
 
     const getData = async () => {
         try {
             const res = await getPosts();
             console.log(res);
             setData(res);
+            setSearchResults(res); 
         } catch (err) {
             console.error("Error fetching posts:", err);
         }
@@ -31,6 +37,7 @@ const Posts = () => {
         try {
             await deletePost(id)
             setData(data.filter(post => post.id !== id))
+            setSearchResults(searchResults.filter((post) => post.id !== id));
         }
         catch (err) {
             console.error('error deleting post', err)
@@ -55,6 +62,18 @@ const Posts = () => {
         }
     }
 
+    const handleSearch = () => {
+        if (searchvalue.trim() === "") {
+            setSearchResults(data)
+        }
+        else {
+            const searchResult = data.filter(post => 
+                post.title.toLowerCase().includes(searchvalue.toLowerCase())
+        )
+            setSearchResults(searchResult)
+        }
+    }
+
 
 
 
@@ -65,8 +84,23 @@ const Posts = () => {
 
 
     return (
-        <>
-            {data.map((post) => (
+        <> <div>
+            <input
+                type='text'
+                placeholder='serach by title'
+                value={searchvalue}
+                onChange={(e) => {
+                    setSearchValue(e.target.value)
+                }}
+                style={{
+                    padding: "10px", width: "400px", height: "30px", fontSize: "20px", borderRadius: "4px",
+                    border: "1px solid #ddd"
+                }}
+
+            />
+            <button onClick={handleSearch}>Search</button>
+        </div>
+            {(searchvalue ? searchResults: data).map((post) => (
                 <div key={post.id}>
 
                     {editingPost === post.id ? (
@@ -110,8 +144,8 @@ const Posts = () => {
                                 borderRadius: "4px",
                                 cursor: "pointer",
                             }} onClick={() => handleEdit(post)}>Edit</button>
-                            
-                            
+
+
                             <button style={{
                                 backgroundColor: "#dc3545",
                                 color: "#fff",
