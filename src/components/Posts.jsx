@@ -12,7 +12,8 @@ const Posts = () => {
     });
     const [searchvalue, setSearchValue] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-
+    const [filterUserId, setFilterUserId] = useState("");
+    const [uniqueUserIds, setUniqueUserIds] = useState([]);
 
 
 
@@ -93,12 +94,33 @@ const Posts = () => {
                     setSearchValue(e.target.value)
                 }}
                 style={{
-                    padding: "10px", width: "400px", height: "30px", fontSize: "20px", borderRadius: "4px",
+                    padding: "10px", width: "400px", height: "25px", fontSize: "20px", borderRadius: "4px",
                     border: "1px solid #ddd"
                 }}
 
             />
+         
+
             <button onClick={handleSearch}>Search</button>
+
+            <select
+            value={filterUserId}
+            onChange={(e)=>setFilterUserId(e,target.value)}
+            style={{
+                padding: "5px",
+                height: "30px",
+                fontSize: "16px",
+                borderRadius: "4px",
+                border: "1px solid #ddd"
+            }}
+            >
+                <option value="">Filter By UserId</option>
+                {uniqueUserIds.map((userId)=>(
+                    <option key={userId} value={userId}>
+                       user : {userId}
+                    </option>
+                ))}
+            </select>
         </div>
             {(searchvalue ? searchResults: data).map((post) => (
                 <div key={post.id}>
@@ -133,7 +155,14 @@ const Posts = () => {
                         </div>
                     ) : (
 
-                        <div>
+                        <div style={{
+                            border: "1px solid #ddd",
+                            padding: "20px",
+                            margin: "10px 0",
+                            borderRadius: "4px",
+                            backgroundColor: "grey"}}
+                            >
+
                             <h2>{post.title}</h2>
                             <p>{post.body}</p>
                             <button style={{
@@ -154,6 +183,7 @@ const Posts = () => {
                                 borderRadius: "4px",
                                 cursor: "pointer",
                             }} onClick={() => handleDelete(post.id)}>Delete</button>
+                            
                         </div>
                     )}
                 </div>
