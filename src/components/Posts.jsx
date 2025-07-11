@@ -1,14 +1,15 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { deletePost, getPosts, putPost } from '../api/Postapi';
-import { useState } from 'react';
+
 
 const Posts = () => {
     const [data, setData] = useState([]);
     const [editingPost, setEditingPost] = useState(null);
-    const [updatedPost,setupdatedPost] = useState({
+    const [updatedPost, setupdatedPost] = useState({
         title: "",
-        body: ""});
+        body: ""
+    });
 
     const getData = async () => {
         try {
@@ -21,35 +22,41 @@ const Posts = () => {
 
     }
 
+    const handleChange = (e) => {
+        setupdatedPost({ ...updatedPost, [e.target.name]: e.target.value });
+    }
+
+
     const handleDelete = async (id) => {
         try {
             await deletePost(id)
             setData(data.filter(post => post.id !== id))
         }
-        catch(err){
-            console.error('error deleting post',err)
+        catch (err) {
+            console.error('error deleting post', err)
         }
     }
 
-    const handleEdit = async (post) =>{
+    const handleEdit = (post) => {
         setEditingPost(post.id);
-        setupdatedPost( {
+        setupdatedPost({
             title: post.title,
-            body: post.body})
+            body: post.body
+        })
     }
 
-    const handleUpdate =async (id)=>{
-        try{
-            const  res = await putPost(id, updatedPost)
-            setData(data.map(post => post.id === id ? res : post));
+    const handleUpdate = async (id) => {
+        try {
+            const res = await putPost(id, updatedPost)
+            setData(data.map(post => (post.id === id ? res : post)));
             setEditingPost(null);
-        }catch(err){
+        } catch (err) {
             console.error(`Error updating post with id ${id}:`, err);
         }
     }
-    
 
-     
+
+
 
     useEffect(() => {
         getData()
@@ -61,30 +68,58 @@ const Posts = () => {
         <>
             {data.map((post) => (
                 <div key={post.id}>
+
                     {editingPost === post.id ? (
-                        // Edit Mode
+
                         <div>
-                            <input
+                            <input style={{
+                                padding: "10px", width: "400px", height: "60px", fontSize: "20px", borderRadius: "4px",
+                                border: "1px solid #ddd"
+                            }}
                                 type="text"
-                                value={updatedTitle}
-                                onChange={(e) => setUpdatedTitle(e.target.value)}
+                                name='title'
+                                value={updatedPost.title}
+                                onChange={handleChange}
                                 placeholder="Update title"
                             />
+                            <br />
                             <textarea
-                                value={updatedBody}
-                                onChange={(e) => setUpdatedBody(e.target.value)}
+                                style={{
+                                    padding: "10px", width: "700px", height: "60px", fontSize: "20px", borderRadius: "4px",
+                                    border: "1px solid #ddd"
+                                }}
+
+                                value={updatedPost.body}
+                                onChange={handleChange}
                                 placeholder="Update body"
+                                name='body'
                             ></textarea>
                             <button onClick={() => handleUpdate(post.id)}>Save</button>
                             <button onClick={() => setEditingPost(null)}>Cancel</button>
                         </div>
                     ) : (
-                        // View Mode
+
                         <div>
                             <h2>{post.title}</h2>
                             <p>{post.body}</p>
-                            <button onClick={() => handleEdit(post)}>Edit</button>
-                            <button onClick={() => handleDelete(post.id)}>Delete</button>
+                            <button style={{
+                                backgroundColor: "#007bff",
+                                color: "#fff",
+                                border: "none",
+                                padding: "10px 15px",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                            }} onClick={() => handleEdit(post)}>Edit</button>
+                            
+                            
+                            <button style={{
+                                backgroundColor: "#dc3545",
+                                color: "#fff",
+                                border: "none",
+                                padding: "10px 15px",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                            }} onClick={() => handleDelete(post.id)}>Delete</button>
                         </div>
                     )}
                 </div>
